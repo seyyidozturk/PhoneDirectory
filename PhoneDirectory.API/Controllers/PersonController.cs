@@ -43,7 +43,24 @@ namespace PhoneDirectory.API.Controllers
             return Ok(result);
         }
 
-        [HttpDelete]
+        [HttpPost]
+        public ActionResult Save([FromBody] Person person)
+        {
+            Result result;
+            if (person.Id!=Guid.Empty)
+            {
+                result = Service.UpdatePerson(person);
+            }
+            else
+            {
+                result = Service.CreatePerson(person);
+            }
+        
+            return Ok(result);
+        }
+
+
+        [HttpPost]
         public ActionResult Delete(Guid id)
         {
             var result = Service.DeletePerson(id);
