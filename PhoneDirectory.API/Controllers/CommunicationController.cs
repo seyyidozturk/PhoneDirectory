@@ -18,13 +18,13 @@ namespace PhoneDirectory.API.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create([FromBody] Communication communication)
+        public ActionResult Save([FromBody] Communication communication)
         {
             var result = Service.CreateCommunication(communication);
             return Ok(result);
         }
 
-        [HttpDelete]
+        [HttpPost]
         public ActionResult Delete(Guid id)
         {
             var result = Service.DeleteCommunication(id);

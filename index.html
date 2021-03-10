@@ -1,0 +1,417 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+    <div id="app">
+        <v-app>
+            <v-main>
+                <v-container>
+                    <v-row justify="start">
+                        <v-col cols="12">
+                            <v-btn color="green accent-4"
+                                   dark
+                                   @click="detailPersonDialog=true">
+                                New Person
+                            </v-btn>
+                        </v-col>
+                    </v-row>
+                    <!-- #region | Detail Person | -->
+                    <v-row justify="start">
+                        <v-col>
+                            <v-dialog v-model="detailPersonDialog"
+                                      max-width="600px">
+                                <v-card>
+                                    <v-card-title>
+                                        <span class="headline">Person</span>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <v-container>
+                                            <v-row>
+                                                <v-col cols="12">
+                                                    <v-text-field v-model="personModel.name" label="Name"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12">
+                                                    <v-text-field v-model="personModel.surname" label="Surname"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12">
+                                                    <v-text-field v-model="personModel.company" label="Company"></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12">
+                                                    <label>Communication</label>
+                                                    <v-btn class="ma-4"
+                                                           fab
+                                                           dark
+                                                           x-small
+                                                           color="blue"
+                                                           @click="createCommunicationDialog=true">
+                                                        <v-icon dark>
+                                                            mdi-plus
+                                                        </v-icon>
+                                                    </v-btn>
+                                                    <div v-for="(item, index) in personModel.communications">
+                                                        {{getCommunicationTypeName(item)}} : {{item.content}}
+                                                        <v-btn class="ma-4"
+                                                               icon
+                                                               dark
+                                                               x-small
+                                                               color="red"
+                                                               @click="deleteCommunication(item)">
+                                                            <v-icon dark>
+                                                                mdi-delete
+                                                            </v-icon>
+                                                        </v-btn>
+                                                    </div>
+                                                </v-col>
+                                            </v-row>
+                                        </v-container>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="blue darken-1"
+                                               text
+                                               @click="detailPersonDialog = false">
+                                            Close
+                                        </v-btn>
+                                        <v-btn color="blue darken-1"
+                                               text
+                                               @click="savePerson()">
+                                            Save
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>
+                        </v-col>
+                    </v-row>
+                    <!-- #endregion -->
+                    <!-- #region | Communication Dialog | -->
+                    <v-row justify="start">
+                        <v-col>
+                            <v-dialog v-model="createCommunicationDialog"
+                                      max-width="600px">
+                                <v-card>
+                                    <v-card-title>
+                                        <span class="headline">Communication</span>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <v-container>
+                                            <v-row>
+                                                <v-col cols="12">
+                                                    <v-select v-model="communicationModel.informationType"
+                                                              :items="informationType"
+                                                              item-text="text"
+                                                              item-value="value"
+                                                              label="Select"
+                                                              return-object
+                                                              single-line></v-select>
+                                                </v-col>
+                                                <v-col cols="12">
+                                                    <v-text-field v-model="communicationModel.content" label="Content"></v-text-field>
+                                                </v-col>
+
+                                            </v-row>
+                                        </v-container>
+                                    </v-card-text>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="blue darken-1"
+                                               text
+                                               @click="createCommunicationDialog = false">
+                                            Close
+                                        </v-btn>
+                                        <v-btn color="blue darken-1"
+                                               text
+                                               @click="saveCommunication()">
+                                            Save
+                                        </v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </v-dialog>
+                        </v-col>
+                    </v-row>
+                    <!-- #endregion -->
+                    <!-- #region | Person Table |-->
+                    <v-row>
+                        <v-col>
+                            <v-card>
+                                <v-card-title>
+                                    Persons
+                                    <v-spacer></v-spacer>
+                                    <v-text-field v-model="search"
+                                                  append-icon="mdi-magnify"
+                                                  label="Search"
+                                                  single-line
+                                                  hide-details></v-text-field>
+                                </v-card-title>
+                                <v-data-table :headers="personHeaders"
+                                              :items="persons"
+                                              :search="search">
+                                    <template v-slot:item.actions="{ item }">
+                                        <v-btn class="mx-2"
+                                               fab
+                                               dark
+                                               x-small
+                                               color="blue"
+                                               @click="editPerson(item)">
+                                            <v-icon dark>
+                                                mdi-account-edit
+                                            </v-icon>
+                                        </v-btn>
+                                        <v-btn class="mx-2"
+                                               fab
+                                               dark
+                                               x-small
+                                               color="red"
+                                               @click="deletePerson(item)">
+                                            <v-icon dark>
+                                                mdi-delete
+                                            </v-icon>
+                                        </v-btn>
+                                    </template>
+                                </v-data-table>
+                            </v-card>
+                        </v-col>
+                    </v-row>
+                    <!-- #endregion -->
+
+                </v-container>
+            </v-main>
+        </v-app>
+    </div>
+
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        vuetify: new Vuetify({
+            theme: {
+                dark: true
+            },
+        }),
+        data: {
+            createCommunicationDialog: false,
+            detailPersonDialog: false,
+            formDialog: false,
+            search: '',
+            headers: [],
+            desserts: [],
+            personHeaders: [
+                //{
+                //    text: 'Id',
+                //    sortable: false,
+                //    filterable: false,
+                //    value: 'id',
+                //},
+                {
+                    text: 'Name',
+                    sortable: false,
+                    value: 'name',
+                },
+                {
+                    text: 'Surname',
+                    sortable: false,
+                    value: 'surname',
+                },
+                {
+                    text: 'Company',
+                    sortable: false,
+                    value: 'company',
+                },
+                {
+                    text: 'Action',
+                    sortable: false,
+                    value: 'actions',
+                }
+            ],
+            persons: [],
+            personModel: {
+                name: "",
+                surname: "",
+                company: ""
+            },
+            defaultPersonModel: {
+                name: "",
+                surname: "",
+                company: ""
+            },
+            communicationModel: {
+                content: "",
+                informationType: null
+            },
+            informationType: [
+                {
+                    value: 0,
+                    text: "Phone"
+                },
+                {
+                    value: 1,
+                    text: "Mail"
+                },
+                {
+                    value: 2,
+                    text: "Location"
+                }
+            ]
+        },
+        created: function () {
+            this.getPersons();
+        },
+        methods: {
+            getRequest: function (url, headerConfig, successCallback, errorCallback, onPreRequest, onPostRequest) {
+                if (onPreRequest) {
+                    onPreRequest();
+                }
+
+                axios.get(url, headerConfig)
+                    .then(successCallback)
+                    .catch(errorCallback)
+                    .finally(function () {
+                        if (onPostRequest) {
+                            onPostRequest();
+                        }
+                    });
+            },
+            postRequest: function (url, data, headerConfig, successCallback, errorCallback, onPreRequest, onPostRequest) {
+                if (onPreRequest) {
+                    onPreRequest();
+                }
+
+                axios.post(url, data, headerConfig)
+                    .then(successCallback)
+                    .catch(errorCallback)
+                    .finally(function () {
+                        if (onPostRequest) {
+                            onPostRequest();
+                        }
+                    });
+            },
+            executeFunctionByName: function (functionName, context) {
+                var args = [].slice.call(arguments).splice(2);
+                var namespaces = functionName.split(".");
+                var func = namespaces.pop();
+                for (var i = 0; i < namespaces.length; i++) {
+                    context = context[namespaces[i]];
+                }
+                return context[func].apply(context, args);
+            },
+
+            getPersons: function () {
+                this.getRequest("https://localhost:44367/api/person/getlist",
+                    null,
+                    function (result) {
+                        if (result["data"]) {
+                            var result = result.data;
+                            if (result.success) {
+                                app.persons = result.data;
+                            }
+                            else {
+                                alert(result.message);
+                            }
+                        }
+                    },
+                    function (error) {
+                        alert("error");
+                        console.log(error);
+                    });
+            },
+            savePerson: function () {
+                app.postRequest("https://localhost:44367/api/person/save",
+                    app.personModel,
+                    null,
+                    function (result) {
+                        app.getPersons();
+                        app.formDialog = false;
+                        app.detailPersonDialog = false;
+                        app.personModel = app.defaultPersonModel;
+                    },
+                    function (error) {
+
+                    });
+            },
+            deletePerson: function (item) {
+                app.postRequest("https://localhost:44367/api/person/delete?id=" + item.id,
+                    null,
+                    null,
+                    function (result) {
+                        app.getPersons();
+                    },
+                    function (error) {
+
+                    });
+            },
+            editPerson: function (item) {
+                app.getbyPersonId(item);
+            },
+            getbyPersonId: function (item) {
+                app.getRequest("https://localhost:44367/api/Person/GetById/" + item.id,
+                    null,
+                    function (result) {
+                        if (result["data"]) {
+                            var result = result.data;
+                            if (result.success) {
+                                app.detailPersonDialog = true;
+                                app.personModel = result.data;
+                            }
+                            else {
+                                alert(result.message);
+                            }
+                        }
+                    },
+                    function (error) {
+                        alert("error");
+                        console.log(error);
+                    });
+            },
+            getCommunicationTypeName: function (item) {
+                var txt = "";
+                if (item.informationType == 0) {
+                    txt = "Phone"
+                }
+                else if (item.informationType == 1) {
+                    txt = "Mail"
+                }
+                else if (item.informationType == 2) {
+                    txt = "Location"
+                }
+                return txt;
+            },
+            saveCommunication: function () {
+                var model = {
+                    informationType: app.communicationModel.informationType.value,
+                    content: app.communicationModel.content,
+                    personId: app.personModel.id,
+                }
+                app.postRequest("https://localhost:44367/api/communication/save",
+                    model,
+                    null,
+                    function (result) {
+                        app.getbyPersonId(app.personModel);
+                        app.createCommunicationDialog = false;
+                    },
+                    function (error) {
+
+                    });
+            },
+            deleteCommunication: function (item) {
+                app.postRequest("https://localhost:44367/api/communication/delete?id=" + item.id,
+                    null,
+                    null,
+                    function (result) {
+                        app.getbyPersonId(app.personModel);
+                        app.createCommunicationDialog = false;
+                    },
+                    function (error) {
+
+                    });
+            }
+        }
+    })
+</script>
