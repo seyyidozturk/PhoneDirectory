@@ -1,12 +1,8 @@
-# PhoneDirectory
-Phone Directory App
+## Telefon Rehber Uygulaması
 
-## Getting Started
-
-Bu depo basit bir telefon rehberi yapısını kişi ve iletişim bilgilerini tutan örnek uygumaladır.
+Bu depo basit bir telefon rehberi için kişi ve iletişim bilgilerini .Net 5 Wep Api üzerinden istek yapılarak veriyi PostgreSQL'de tutan örnek uygumalayı içerir.
 
 ## Kullanılan Teknolojiler
 
 * [.NET 5.0](https://dotnet.microsoft.com/download/dotnet/5.0)
 * [PostgreSQL](https://www.postgresql.org/)
-* [GitHub](https://github.com)
