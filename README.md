@@ -6,3 +6,5 @@ Bu depo basit bir telefon rehberi için kişi ve iletişim bilgilerini .Net 5 We
 
 * [.NET 5.0](https://dotnet.microsoft.com/download/dotnet/5.0)
 * [PostgreSQL](https://www.postgresql.org/)
+* [Vue.Js](https://vuejs.org/)
+* [Vuetify](https://vuetifyjs.com/)
